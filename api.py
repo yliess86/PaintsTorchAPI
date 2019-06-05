@@ -4,6 +4,7 @@ import numpy as np
 import blend_modes
 import base64
 import torch
+import json
 import sys
 sys.path.append('/Projects/PaintsTorch/paintstorch')
 
@@ -116,7 +117,7 @@ def colorizer():
     if 'sketch' in data and 'hint' in data:
         colored  = colorize(data['sketch'], data['hint'], data['opacity'])
         print('hey', colored)
-        response = jsonify({'colored': colored})
+        response = jsonify({'colored': json.dumps(list(colored))})
         return response
     return jsonify({})
 
