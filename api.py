@@ -137,9 +137,9 @@ if __name__ == '__main__':
 
     G.load_state_dict(C['generator'])
 
+    if args.device == 'cuda': device = 'cuda:3' 
     G = G.to(device)
     I = I.to(device)
 
-    if args.device == 'cuda': device = 'cuda:3' 
 
     app.run(debug=True, threaded=True, host='0.0.0.0', port=8888)
