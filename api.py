@@ -62,6 +62,11 @@ Th = transforms.Compose([
 ])
 
 def remove_header(x):
+    x  = x.replace('data:image/jpeg;base64,', '')
+    x  = x.replace('data:image/png;base64,', '')
+    x  = x.replace('data:image/jpg;base64,', '')
+    x  = x.replace('data:image/tiff;base64,', '')
+
     x  = x.replace('data:image/jpeg;base64', '')
     x  = x.replace('data:image/png;base64', '')
     x  = x.replace('data:image/jpg;base64', '')
