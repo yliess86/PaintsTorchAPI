@@ -114,7 +114,7 @@ def colorizer():
     data = request.json
     if 'sketch' in data and 'hint' in data:
         colored  = colorize(data['sketch'], data['hint'], data['opacity'])
-        print('hey')
+        print('hey', colored)
         response = jsonify({'colored': colored})
         return response
     return jsonify({})
