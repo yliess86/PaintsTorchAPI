@@ -1,4 +1,6 @@
 numpy
+scipy
+scikit-image
 pillow
 blend_modes
 flask
