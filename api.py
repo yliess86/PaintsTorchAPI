@@ -116,9 +116,10 @@ def colorizer():
     data = request.json
     if 'sketch' in data and 'hint' in data:
         colored  = colorize(data['sketch'], data['hint'], data['opacity'])
-        response = jsonify({'colored': str(colored)[2:-1]})
+        response = jsonify({ 'success': True, 'colored': str(colored)[2:-1] })
         return response
-    return jsonify({})
+
+    return jsonify({ 'success': False })
 
 if __name__ == '__main__':
     import argparse
@@ -137,7 +138,7 @@ if __name__ == '__main__':
 
     G.load_state_dict(C['generator'])
 
-    if args.device == 'cuda': device = 'cuda:3' 
+    if args.device == 'cuda': device = 'cuda:3'
     G = G.to(device)
     I = I.to(device)
 
