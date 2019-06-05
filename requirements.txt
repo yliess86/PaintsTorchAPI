@@ -3,5 +3,5 @@ pillow
 blend_modes
 flask
 flask_cors
-torchvision
 torch
+torchvision
