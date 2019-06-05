@@ -113,9 +113,9 @@ def colorize(sketch, hint, opacity):
 @app.route('/api/v1/colorizer', methods=['POST'])
 @cross_origin(origin='*')
 def colorizer():
-    data = request.json
-
     try:
+        data = request.json
+
         if 'sketch' in data and 'hint' in data:
             colored  = colorize(data['sketch'], data['hint'], data['opacity'])
             response = jsonify({ 'success': True, 'colored': str(colored)[2:-1] })
