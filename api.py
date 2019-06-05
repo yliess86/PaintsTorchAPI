@@ -123,8 +123,8 @@ if __name__ == '__main__':
     device = args.device
 
     C = torch.load(args.generator)
-    G = nn.DataParallel(Generator(64, in_channels=1, out_channels=3))
-    I = nn.DataParallel(Illustration2Vec(path=args.illustration2vec))
+    G = Generator(64, in_channels=1, out_channels=3)
+    I = Illustration2Vec(path=args.illustration2vec)
 
     G.load_state_dict(C['generator'])
 
