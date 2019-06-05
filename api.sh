@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export PYTHONIOENCODING=UTF-8
+
 pip install -r requirements.txt
 
 python3 api.py \
