@@ -103,11 +103,12 @@ def colorize(sketch, hint, opacity):
 @app.route('/api/v1/colorizer', methods=['POST'])
 @cross_origin(origin='*')
 def colorizer():
-    print('Test')
     data = request.json
     if 'sketch' in data and 'hint' in data:
-        colored = colorize(data['sketch'], data['hint'], data['opacity'])
-        return jsonify({'colored': colored})
+        colored  = colorize(data['sketch'], data['hint'], data['opacity'])
+        response = jsonify({'colored': colored})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
     return jsonify({})
 
 if __name__ == '__main__':
