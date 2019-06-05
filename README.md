@@ -12,7 +12,7 @@ The request and response format are the following.
 {
   "sketch"  : "BASE64 PNG/JPG/JPEG",
   "hint"    : "BASE64 PNG With Transparence",
-  "opcaity" : 0.0 /* Opcaity can vary from 0 to 1 */
+  "opacity" : 0.0 /* Opcaity can vary from 0 to 1 */
 }
 ```
 
