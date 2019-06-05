@@ -4,4 +4,4 @@ blend_modes
 flask
 flask_cors
 torch
-torchvision-cpu
+torchvision
