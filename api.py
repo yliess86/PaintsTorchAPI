@@ -120,7 +120,7 @@ def colorizer():
             colored  = colorize(data['sketch'], data['hint'], data['opacity'])
             response = jsonify({ 'success': True, 'colored': str(colored)[2:-1] })
             return response
-    except e:
+    except Exception as e:
         print('\033[0;31m' + e + '\033[0m')
 
     return jsonify({ 'success': False })
