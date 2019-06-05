@@ -103,6 +103,7 @@ def colorize(sketch, hint, opacity):
 @app.route('/api/v1/colorizer', methods=['POST'])
 @cross_origin(origin='*')
 def colorizer():
+    print('Test')
     data = request.json
     if 'sketch' in data and 'hint' in data:
         colored = colorize(data['sketch'], data['hint'], data['opacity'])
@@ -129,4 +130,4 @@ if __name__ == '__main__':
     G = G.to(device)
     I = I.to(device)
 
-    app.run(threaded=True, host='0.0.0.0', port=8888)
+    app.run(debug=True, threaded=True, host='0.0.0.0', port=8888)
