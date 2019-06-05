@@ -115,7 +115,6 @@ def colorizer():
     if 'sketch' in data and 'hint' in data:
         colored  = colorize(data['sketch'], data['hint'], data['opacity'])
         response = jsonify({'colored': colored})
-        response.headers.add('Access-Control-Allow-Origin', '*')
         return response
     return jsonify({})
 
