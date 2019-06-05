@@ -13,6 +13,14 @@ from flask import Flask, request, jsonify
 from io import BytesIO
 from PIL import Image
 
+class Wrapper(nn.Module):
+    def __init__(self, module):
+        super(Wrapper, self).__init__()
+        self.module = module
+   
+    def forward(self, x):
+        return self.module(x)
+
 app                        = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 cors                       = CORS(app)
@@ -123,7 +131,7 @@ if __name__ == '__main__':
     device = args.device
 
     C = torch.load(args.generator)
-    G = Generator(64, in_channels=1, out_channels=3)
+    G = Wrapper(Generator(64, in_channels=1, out_channels=3))
     I = Illustration2Vec(path=args.illustration2vec)
 
     G.load_state_dict(C['generator'])
