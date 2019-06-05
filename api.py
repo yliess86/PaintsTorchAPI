@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 import blend_modes
 import base64
+import codecs
 import torch
 import sys
 sys.path.append('/Projects/PaintsTorch/paintstorch')
@@ -106,6 +107,7 @@ def colorize(sketch, hint, opacity):
     blend.save(buff, format='PNG')
     base          = base64.b64encode(buff.getvalue())
     blend         = b'data:image/png;base64,' + base
+    blend         = codecs.encode(blend, 'utf-8')
 
     return blend
 
