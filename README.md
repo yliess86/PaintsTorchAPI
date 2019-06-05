@@ -37,7 +37,7 @@ $.ajax({
   dataType    :'json',
   success     : function(response){
     if('colored' in response) {
-      let colored = response.color;
+      let colored = response.colored;
       // Do wathever you want with it
     }
   }

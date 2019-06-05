@@ -115,6 +115,11 @@ def colorize(sketch, hint, opacity):
 
     return blend
 
+def add_response_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
+    return response
+
 @app.route('/api/v1/colorizer', methods=['POST'])
 @cross_origin(origin='*')
 def colorizer():
@@ -124,14 +129,19 @@ def colorizer():
         if 'sketch' in data and 'hint' and 'opacity' in data:
             colored  = colorize(data['sketch'], data['hint'], data['opacity'])
             response = jsonify({ 'success': True, 'colored': str(colored)[2:-1] })
+            response = add_response_headers(response)
             return response
 
         else:
-            return jsonify({ 'success': False, 'error': '"sketch" or "hint" or "opacity" may not be included in the json' })
+            response = jsonify({ 'success': False, 'error': '"sketch" or "hint" or "opacity" may not be included in the json' })
+            response = add_response_headers(response)
+            return response
 
     except Exception as e:
         print('\033[0;31m' + str(e) + '\033[0m')
-        return jsonify({ 'success': False, 'error': str(e) })
+        response = jsonify({ 'success': False, 'error': str(e) })
+        response = add_response_headers(response)
+        return response
 
 if __name__ == '__main__':
     import argparse
