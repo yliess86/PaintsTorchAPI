@@ -121,14 +121,17 @@ def colorizer():
     try:
         data = request.json
 
-        if 'sketch' in data and 'hint' in data:
+        if 'sketch' in data and 'hint' and 'opacity' in data:
             colored  = colorize(data['sketch'], data['hint'], data['opacity'])
             response = jsonify({ 'success': True, 'colored': str(colored)[2:-1] })
             return response
+
+        else:
+            return jsonify({ 'success': False, 'error': '"sketch" or "hint" or "opacity" may not be included in the json' })
+
     except Exception as e:
         print('\033[0;31m' + str(e) + '\033[0m')
-
-    return jsonify({ 'success': False })
+        return jsonify({ 'success': False, 'error': str(e) })
 
 if __name__ == '__main__':
     import argparse
