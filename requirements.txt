@@ -1,0 +1,9 @@
+io
+numpy
+pillow
+base64
+blend_modes
+flask
+flask_cors
+torchvision
+torch
