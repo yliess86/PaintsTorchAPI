@@ -74,8 +74,8 @@ def colorize(sketch, hint, opacity):
     sketch        = Ts(osketch)
     hint          = Th(hint)
 
-    sketch        = sketch.unsqueeze(0).to_device(device)
-    hint          = hint.unsqueeze(0).to_device(device)
+    sketch        = sketch.unsqueeze(0).to(device)
+    hint          = hint.unsqueeze(0).to(device)
     colored       = G(sketch, hint, I(sketch)).squeeze(0).permute(1, 2, 0).detach().cpu().numpy()
     colored       = ((colored + 1) * 0.5 * 255.0).astype(np.uint8)
 
@@ -111,14 +111,14 @@ def colorizer():
 
 if __name__ == '__main__':
     import argparse
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--device', type=str, default='cpu', help='Select the device to run on: either "cpu" and "cuda" are available')
     parser.add_argument('-g', '--generator', type=str, default='./generator.pth', help='Path to generator model')
     parser.add_argument('-i', '--illustration2vec', type=str, default='./i2v.pth', help='Path to Illustration2Vec model')
-    
+
     args   = parser.parse_args()
-    device = args.device 
+    device = args.device
 
     C = torch.load(args.generator)
     G = nn.DataParallel(Generator(64, in_channels=1, out_channels=3))
@@ -126,7 +126,7 @@ if __name__ == '__main__':
 
     G.load_state_dict(C['generator'])
 
-    G = G.to_device(device)
-    I = I.to_device(device)
+    G = G.to(device)
+    I = I.to(device)
 
     app.run(threaded=True, host='0.0.0.0', port=8888)
