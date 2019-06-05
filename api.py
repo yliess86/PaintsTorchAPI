@@ -77,7 +77,7 @@ def colorize(sketch, hint, opacity):
     sketch  = remove_header(sketch)
     hint    = remove_header(hint)
 
-    osketch = Image.open(BytesIO(base64.b64decode(sketch)))
+    osketch = Image.open(BytesIO(base64.b64decode(sketch))).convert('RGB')
     hint    = Image.open(BytesIO(base64.b64decode(hint)))
     w, h    = osketch.size
     print(np.array(osketch).shape, np.array(hint).shape)
