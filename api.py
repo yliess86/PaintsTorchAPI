@@ -18,7 +18,7 @@ class Wrapper(nn.Module):
     def __init__(self, module):
         super(Wrapper, self).__init__()
         self.module = module
-   
+
     def forward(self, sketch, hint, features):
         return self.module(sketch, hint, features)
 
@@ -132,8 +132,8 @@ if __name__ == '__main__':
     device = args.device
 
     C = torch.load(args.generator)
-    G = Wrapper(Generator(64, in_channels=1, out_channels=3))
-    I = Illustration2Vec(path=args.illustration2vec)
+    G = Wrapper(Generator(64, in_channels=1, out_channels=3)) if args.device == 'cpu' else nn.DataParallel(Generator(64, in_channels=1, out_channels=3), device_ids=(3, ))
+    I = Illustration2Vec(path=args.illustration2vec) if args.device == 'cpu' else nn.DataParallel(Illustration2Vec(path=args.illustration2vec), device_ids=(3, ))
 
     G.load_state_dict(C['generator'])
 
