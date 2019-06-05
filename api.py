@@ -80,6 +80,7 @@ def colorize(sketch, hint, opacity):
     osketch = Image.open(BytesIO(base64.b64decode(sketch)))
     hint    = Image.open(BytesIO(base64.b64decode(hint)))
     w, h    = osketch.size
+    print(np.array(osketch).shape, np.array(hint).shape)
 
     if osketch.mode == 'RGBA':
         bckg    = Image.new('RGB', osketch.size, (255, 255, 255))
