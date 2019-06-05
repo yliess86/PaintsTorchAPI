@@ -18,8 +18,8 @@ class Wrapper(nn.Module):
         super(Wrapper, self).__init__()
         self.module = module
    
-    def forward(self, x):
-        return self.module(x)
+    def forward(self, sketch, hint, features):
+        return self.module(sketch, hint, features)
 
 app                        = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
