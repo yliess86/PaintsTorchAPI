@@ -21,10 +21,11 @@ class Wrapper(nn.Module):
     def forward(self, sketch, hint, features):
         return self.module(sketch, hint, features)
 
-app                        = Flask(__name__)
-app.config['CORS_HEADERS'] = 'Content-Type'
-cors                       = CORS(app)
-device                     = 'cpu'
+app                         = Flask(__name__)
+app.config['CORS_HEADERS']  = 'Content-Type'
+app.config['JSON_AS_ASCII'] = False
+cors                        = CORS(app)
+device                      = 'cpu'
 
 def add_grey(x):
     grey              = np.ones((512 // 4, 512 // 4, 4)) * 128.0
