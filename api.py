@@ -73,6 +73,30 @@ def remove_header(x):
     x  = x.replace('data:image/tiff;base64', '')
     return x
 
+def png2base64(img):
+    img  = Image.fromarray(img.astype(np.uint8))
+    buff = BytesIO()
+    img.save(buff, format='PNG')
+    base = b'data:image/png;base64,' + base64.b64encode(buff.getvalue())
+    return base
+
+def blend_sketch_colored(sketch, colored, opacity):
+    bin_a         = (((sketch.mean(2) < 128) * 1.0) * 255.0)
+    bin           = np.zeros((colored.shape[0], colored.shape[1], 4))
+    bin[:, :, :3] = sketch
+    bin[:, :, 3]  = bin_a
+    blend         = blend_modes.soft_light(colored, bin, opacity)
+    return blend
+
+def apply_color(s, h):
+    sketch  = Ts(s)
+    hint    = Th(h)
+    sketch  = sketch.unsqueeze(0).to(device)
+    hint    = hint.unsqueeze(0).to(device)
+    colored = G(sketch, hint, I(sketch)).squeeze(0).permute(1, 2, 0).detach().cpu().numpy()
+    colored = ((colored + 1) * 0.5 * 255.0).astype(np.uint8)
+    return colored
+
 def colorize(sketch, hint, opacity):
     sketch  = remove_header(sketch)
     hint    = remove_header(hint)
@@ -80,39 +104,21 @@ def colorize(sketch, hint, opacity):
     osketch = Image.open(BytesIO(base64.b64decode(sketch))).convert('RGB')
     hint    = Image.open(BytesIO(base64.b64decode(hint)))
     w, h    = osketch.size
-    print(np.array(osketch).shape, np.array(hint).shape)
 
     if osketch.mode == 'RGBA':
         bckg    = Image.new('RGB', osketch.size, (255, 255, 255))
         bckg.paste(osketch, mask=osketch.split()[3])
         osketch = bckg
 
-    sketch        = Ts(osketch)
-    hint          = Th(hint)
+    colored = apply_color(osketch, hint)
 
-    sketch        = sketch.unsqueeze(0).to(device)
-    hint          = hint.unsqueeze(0).to(device)
-    colored       = G(sketch, hint, I(sketch)).squeeze(0).permute(1, 2, 0).detach().cpu().numpy()
-    colored       = ((colored + 1) * 0.5 * 255.0).astype(np.uint8)
+    colored = Image.fromarray(colored)
+    colored = colored.resize((w, h))
+    colored = np.array(colored.convert('RGBA')).astype(float)
+    sketch  = np.array(osketch.convert('RGB')).astype(float)
 
-    colored       = Image.fromarray(colored)
-    colored       = colored.resize((w, h))
-
-    colored       = np.array(colored.convert('RGBA')).astype(float)
-    sketch        = np.array(osketch.convert('RGB')).astype(float)
-
-    bin_a         = (((sketch.mean(2) < 128) * 1.0) * 255.0)
-    bin           = np.zeros((colored.shape[0], colored.shape[1], 4))
-    bin[:, :, :3] = sketch
-    bin[:, :, 3]  = bin_a
-
-    blend         = blend_modes.soft_light(colored, bin, opacity)
-    blend         = Image.fromarray(blend.astype(np.uint8))
-
-    buff          = BytesIO()
-    blend.save(buff, format='PNG')
-    base          = base64.b64encode(buff.getvalue())
-    blend         = b'data:image/png;base64,' + base
+    blend   = blend_sketch_colored(sketch, colored, opacity)
+    blend   = png2base64(blend)
 
     return blend
 
