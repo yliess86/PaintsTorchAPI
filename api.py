@@ -45,7 +45,7 @@ def normalize_hint(hint):
     hint[:3] = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(hint[:3])
     return hint
 
-G  = None
+Gs = {}
 I  = None
 Ts = transforms.Compose([
     lambda x: x.resize((512, 512)),
@@ -88,7 +88,8 @@ def blend_sketch_colored(sketch, colored, opacity):
     blend         = blend_modes.soft_light(colored, bin, opacity)
     return blend
 
-def apply_color(s, h):
+def apply_color(s, h, m):
+    G       = Gs[m]
     sketch  = Ts(s)
     hint    = Th(h)
     sketch  = sketch.unsqueeze(0).to(device)
@@ -97,7 +98,7 @@ def apply_color(s, h):
     colored = ((colored + 1) * 0.5 * 255.0).astype(np.uint8)
     return colored
 
-def colorize(sketch, hint, opacity):
+def colorize(sketch, hint, opacity, model):
     sketch  = remove_header(sketch)
     hint    = remove_header(hint)
 
@@ -110,7 +111,7 @@ def colorize(sketch, hint, opacity):
         bckg.paste(osketch, mask=osketch.split()[3])
         osketch = bckg
 
-    colored = apply_color(osketch, hint)
+    colored = apply_color(osketch, hint, model)
 
     colored = Image.fromarray(colored)
     colored = colored.resize((w, h))
@@ -134,7 +135,9 @@ def colorizer():
         data = request.json
 
         if 'sketch' in data and 'hint' and 'opacity' in data:
-            colored  = colorize(data['sketch'], data['hint'], data['opacity'])
+            model    = data['model'] if 'model' in data else list(Gs.keys())[0]
+
+            colored  = colorize(data['sketch'], data['hint'], data['opacity'], model)
             response = jsonify({ 'success': True, 'colored': str(colored)[2:-1] })
             return response
 
@@ -149,24 +152,30 @@ def colorizer():
 
 if __name__ == '__main__':
     import argparse
+    import os
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--device', type=str, default='cpu', help='Select the device to run on: either "cpu" and "cuda" are available')
-    parser.add_argument('-g', '--generator', type=str, default='./generator.pth', help='Path to generator model')
-    parser.add_argument('-i', '--illustration2vec', type=str, default='./i2v.pth', help='Path to Illustration2Vec model')
+    parser.add_argument('-g', '--generators', nargs='+', type=str, help='Path to generator models')
+    parser.add_argument('-n', '--names', nargs='+', type=str, help='Name of generator models')
+    parser.add_argument('-i', '--illustration2vec', type=str, help='Path to Illustration2Vec model')
 
     args   = parser.parse_args()
-    device = args.device
+    device = 'cuda:3' if args.device == 'cuda' else args.device
 
-    C = torch.load(args.generator)
-    G = Wrapper(Generator(64, in_channels=1, out_channels=3)) if args.device == 'cpu' else nn.DataParallel(Generator(64, in_channels=1, out_channels=3), device_ids=(3, ))
+    assert len(args.names) == len(args.generators), f'Should be as many names as generators:\n{args.names}\n{args.generators}'
+    for path in args.generators:
+        assert os.path.isfile(path), f'File {path} does not exisits'
+
+    for (path, name) in zip(args.generators, args.names):
+        C        = torch.load(path)
+        Gs[name] = Wrapper(Generator(64, in_channels=1, out_channels=3)) \
+                   if args.device == 'cpu' \
+                   else nn.DataParallel(Generator(64, in_channels=1, out_channels=3), device_ids=(3, ))
+        Gs[name].load_state_dict(C['generator'])
+        Gs[name] = Gs[name].to(device)
+
     I = Illustration2Vec(path=args.illustration2vec) if args.device == 'cpu' else nn.DataParallel(Illustration2Vec(path=args.illustration2vec), device_ids=(3, ))
-
-    G.load_state_dict(C['generator'])
-
-    if args.device == 'cuda': device = 'cuda:3'
-    G = G.to(device)
     I = I.to(device)
-
 
     app.run(debug=True, threaded=True, host='0.0.0.0', port=8888)
