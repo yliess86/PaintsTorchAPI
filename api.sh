@@ -11,5 +11,5 @@ python3 api.py \
      '/Projects/PaintsTorchExp/trained/psd/generator.pth' \
      '/Projects/PaintsTorchExp/trained/csd/generator.pth' \
      '/Projects/PaintsTorchExp/custom_strokes_double/model/generator.pth' \
-  -n 'PRS' 'PSS' 'PSD' 'CSD' 'FTM \
+  -n 'PRS' 'PSS' 'PSD' 'CSD' 'FTM' \
   -i '/Projects/PaintsTorch/res/model/i2v.pth'
