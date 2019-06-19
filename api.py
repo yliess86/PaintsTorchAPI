@@ -191,6 +191,20 @@ def study_get():
         response = jsonify({ 'success': False, 'error': str(e) })
         return response
 
+@app.route('/api/v1/results', methods=['GET'])
+@cross_origin(origin='*')
+def results_get():
+    try:
+        db, cursor = mos.create_db()
+        r          = jsonify(mos.get_results(db, cursor))
+        db.close()
+        return r
+
+    except Exception as e:
+        print('\033[0;31m' + str(e) + '\033[0m')
+        response = jsonify({ 'success': False, 'error': str(e) })
+        return response
+
 @app.route('/api/v1/colorizer', methods=['POST'])
 @cross_origin(origin='*')
 def colorizer():
