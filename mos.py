@@ -53,17 +53,17 @@ def get_results(db, cursor):
     counts = counts[0][0]
 
     results = {
-        'paper'    : {
+        'paper'     : {
             'mean': means['paper'],
             'std' : vars['paper'],
         },
-        'our'      : {
-            'mean': means['out'],
-            'std' : vars['out'],
+        'ours'      : {
+            'mean': means['ours'],
+            'std' : vars['ours'],
         },
-        'out_final': {
-            'mean': means['out_final'],
-            'std' : vars['out_final'],
+        'ours_final': {
+            'mean': means['ours_final'],
+            'std' : vars['ours_final'],
         },
         'count': counts
     }
