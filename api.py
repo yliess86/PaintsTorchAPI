@@ -234,9 +234,9 @@ if __name__ == '__main__':
         mos_ours   = os.path.join(mos_path, 'ours')
         mos_ours_f = os.path.join(mos_path, 'ours_final')
         files      = [
-            [os.path.join(mos_paper, f) for f in os.listdir(mos_paper )][:1500],
-            [os.path.join(mos_paper, f) for f in os.listdir(mos_ours  )][:1500],
-            [os.path.join(mos_paper, f) for f in os.listdir(mos_ours_f)][:1500]
+            [os.path.join( mos_paper, f) for f in os.listdir(mos_paper )][:1500],
+            [os.path.join(  mos_ours, f) for f in os.listdir(mos_ours  )][:1500],
+            [os.path.join(mos_ours_f, f) for f in os.listdir(mos_ours_f)][:1500]
         ]
 
         db, cursor = mos.create_db()
