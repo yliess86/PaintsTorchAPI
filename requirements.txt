@@ -6,3 +6,4 @@ blend_modes
 flask
 flask_cors
 torchvision
+sqlite3

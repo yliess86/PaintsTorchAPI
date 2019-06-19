@@ -6,6 +6,7 @@ import base64
 import torch
 import json
 import sys
+import mos
 sys.path.append('/Projects/PaintsTorch/paintstorch')
 
 from flask_cors import CORS, cross_origin
@@ -27,6 +28,10 @@ app.config['CORS_HEADERS']  = 'Content-Type'
 app.config['JSON_AS_ASCII'] = False
 cors                        = CORS(app)
 device                      = 'cpu'
+
+db                          = None
+cursor                      = None
+files                       = None
 
 def add_grey(x):
     grey              = np.ones((512 // 4, 512 // 4, 4)) * 128.0
@@ -128,13 +133,52 @@ def add_response_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
     return response
 
+@app.route('/api/v1/study', methods=['POST'])
+@cross_origin(origin='*')
+def study():
+    try:
+        data = request.json
+
+        if 'session_id' in data and 'file_name' in data and 'model' in data and 'rate' in data:
+            mos.add_entry(db, cursor, data)
+            response = jsonify({ 'success': True })
+            return response
+
+        else:
+            response = jsonify({ 'success': False, 'error': '"session_id" or "file_name" or "model" or "rate" may not be included in the json' })
+            return response
+
+    except Exception as e:
+        print('\033[0;31m' + str(e) + '\033[0m')
+        response = jsonify({ 'success': False, 'error': str(e) })
+        return response
+
+@app.route('/api/v1/study', methods=['GET'])
+@cross_origin(origin='*')
+def study():
+    try:
+        id = min(int(np.random.randint(0, len(files))), len(files) - 1)
+        f  = files[id]
+        i  = Image.open(f)
+        b  = BytesIO()
+        i.save(b, format='PNG')
+        s  = b'data:image/png;base64,' + base64.b64encode(b.getvalue())
+        s  = str(s)[2:-1]
+        r  = jsonify({ 'surccess': True, 'image': s })
+        return r
+
+    except Exception as e:
+        print('\033[0;31m' + str(e) + '\033[0m')
+        response = jsonify({ 'success': False, 'error': str(e) })
+        return response
+
 @app.route('/api/v1/colorizer', methods=['POST'])
 @cross_origin(origin='*')
 def colorizer():
     try:
         data = request.json
 
-        if 'sketch' in data and 'hint' and 'opacity' in data:
+        if 'sketch' in data and 'hint' in data and 'opacity' in data:
             model    = data['model'] if 'model' in data else list(Gs.keys())[0]
 
             colored  = colorize(data['sketch'], data['hint'], data['opacity'], model)
@@ -178,4 +222,23 @@ if __name__ == '__main__':
     I = Illustration2Vec(path=args.illustration2vec) if args.device == 'cpu' else nn.DataParallel(Illustration2Vec(path=args.illustration2vec), device_ids=(3, ))
     I = I.to(device)
 
-    app.run(debug=True, threaded=True, host='0.0.0.0', port=8888)
+    try:
+        mos_path   = '/Projects/PaintsTorchMOS/data'
+        mos_paper  = os.path.join(mos_path, 'paper')
+        mos_ours   = os.path.join(mos_path, 'ours')
+        mos_ours_f = os.path.join(mos_path, 'ours_final')
+        files      = [os.path.join(mos_paper, f) for f in os.listdir(mos_paper )][:1500] + \
+                     [os.path.join(mos_paper, f) for f in os.listdir(mos_ours  )][:1500] + \
+                     [os.path.join(mos_paper, f) for f in os.listdir(mos_ours_f)][:1500]
+
+        db, cursor = mos.create_db()
+        mos.create_table(db, cursor)
+
+        with db:
+            app.run(debug=True, threaded=True, host='0.0.0.0', port=8888)
+
+    except Exception as e:
+        print('[ERROR] DB ISSUE')
+
+    finally:
+        db.close()
