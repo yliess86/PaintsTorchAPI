@@ -26,7 +26,7 @@ def add_entry(db, cursor, data):
 def get_results(db, cursor):
     cursor.execute('SELECT model, ROUND(AVG(rate), 2) FROM study GROUP BY model')
     _means  = cursor.fetchall()
-    means   = { row[0]: row[1]  for row in _means }
+    means   = { row[0]: row[1] for row in _means }
 
     cursor.execute('''
         SELECT
@@ -46,11 +46,11 @@ def get_results(db, cursor):
             model
     ''')
     _vars  = cursor.fetchall()
-    vars   = { row[0]: row[1]  for row in _vars }
+    vars   = { row[0]: row[1] for row in _vars }
 
     cursor.execute('SELECT COUNT(rate) FROM study')
     counts = cursor.fetchall()
-    counts = row[0][0]
+    counts = counts[0][0]
 
     results = {
         'paper'    : {
