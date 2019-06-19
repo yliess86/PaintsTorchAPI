@@ -135,7 +135,7 @@ def add_response_headers(response):
 
 @app.route('/api/v1/study', methods=['POST'])
 @cross_origin(origin='*')
-def study():
+def study_post():
     try:
         data = request.json
 
@@ -155,7 +155,7 @@ def study():
 
 @app.route('/api/v1/study', methods=['GET'])
 @cross_origin(origin='*')
-def study():
+def study_get():
     try:
         id = min(int(np.random.randint(0, len(files))), len(files) - 1)
         f  = files[id]
