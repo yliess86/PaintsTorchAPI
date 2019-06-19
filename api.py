@@ -164,7 +164,12 @@ def study_get():
         i.save(b, format='PNG')
         s  = b'data:image/png;base64,' + base64.b64encode(b.getvalue())
         s  = str(s)[2:-1]
-        r  = jsonify({ 'surccess': True, 'image': s })
+        r  = jsonify({ 
+            'surccess' : True, 
+            'image'    : s, 
+            'file_name': f.split('/')[-1], 
+            'model'    : f.split('/')[-2] 
+        })
         return r
 
     except Exception as e:
