@@ -39,7 +39,7 @@ def resize_image_max(x, size):
     w = int(np.floor(x.width * s))
     h = int(np.floor(x.height * s))
 
-    return x.resize((w, h))
+    return x.resize((w, h)), w, h
 
 def add_grey(x):
     grey              = np.ones((512 // 4, 512 // 4, 4)) * 128.0
@@ -165,18 +165,18 @@ def study_post():
 @cross_origin(origin='*')
 def study_get():
     try:
-        _m = np.random.randint(0, len(files))
-        _i = np.random.randint(0, len(files[_m]))
-        f  = files[_m][_i]
+        _m      = np.random.randint(0, len(files))
+        _i      = np.random.randint(0, len(files[_m]))
+        f       = files[_m][_i]
 
-        i  = resize_image_max(Image.open(f), 648)
+        i, w, h = resize_image_max(Image.open(f), 648)
 
-        b  = BytesIO()
+        b       = BytesIO()
         i.save(b, format='PNG')
-        s  = b'data:image/png;base64,' + base64.b64encode(b.getvalue())
-        s  = str(s)[2:-1]
+        s       = b'data:image/png;base64,' + base64.b64encode(b.getvalue())
+        s       = str(s)[2:-1]
 
-        r  = jsonify({
+        r       = jsonify({
             'surccess' : True,
             'image'    : s,
             'width'    : w,
