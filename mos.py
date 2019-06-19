@@ -30,7 +30,7 @@ def get_results(db, cursor):
 
     cursor.execute('''
         SELECT
-            model, SUM(
+            model, ROUND(SUM(
                 (
                     (SELECT rate FROM study GROUP BY model) -
                     (SELECT AVG(rate) FROM study GROUP BY model)
@@ -39,7 +39,7 @@ def get_results(db, cursor):
                     (SELECT rate FROM study GROUP BY model) -
                     (SELECT AVG(rate) FROM study GROUP BY model)
                 )
-            ) / (COUNT((SELECT rate FROM study GROUP BY model)) - 1)
+            ), 2) / (COUNT((SELECT rate FROM study GROUP BY model)) - 1)
         FROM
             study
         GROUP BY
