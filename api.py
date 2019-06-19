@@ -29,8 +29,6 @@ app.config['JSON_AS_ASCII'] = False
 cors                        = CORS(app)
 device                      = 'cpu'
 
-db                          = None
-cursor                      = None
 files                       = None
 
 def resize_image_max(x, size):
@@ -148,8 +146,10 @@ def study_post():
         data = request.json
 
         if 'session_id' in data and 'file_name' in data and 'model' in data and 'rate' in data:
+            db, cursor = mos.create_db()
             mos.add_entry(db, cursor, data)
-            response = jsonify({ 'success': True })
+            db.close()
+            response   = jsonify({ 'success': True })
             return response
 
         else:
@@ -241,25 +241,18 @@ if __name__ == '__main__':
     I = Illustration2Vec(path=args.illustration2vec) if args.device == 'cpu' else nn.DataParallel(Illustration2Vec(path=args.illustration2vec), device_ids=(3, ))
     I = I.to(device)
 
-    try:
-        mos_path   = '/Projects/PaintsTorchMOS/data'
-        mos_paper  = os.path.join(mos_path, 'paper')
-        mos_ours   = os.path.join(mos_path, 'ours')
-        mos_ours_f = os.path.join(mos_path, 'ours_final')
-        files      = [
-            [os.path.join( mos_paper, f) for f in os.listdir(mos_paper )][:1500],
-            [os.path.join(  mos_ours, f) for f in os.listdir(mos_ours  )][:1500],
-            [os.path.join(mos_ours_f, f) for f in os.listdir(mos_ours_f)][:1500]
-        ]
+    mos_path   = '/Projects/PaintsTorchMOS/data'
+    mos_paper  = os.path.join(mos_path, 'paper')
+    mos_ours   = os.path.join(mos_path, 'ours')
+    mos_ours_f = os.path.join(mos_path, 'ours_final')
+    files      = [
+        [os.path.join( mos_paper, f) for f in os.listdir(mos_paper )][:1500],
+        [os.path.join(  mos_ours, f) for f in os.listdir(mos_ours  )][:1500],
+        [os.path.join(mos_ours_f, f) for f in os.listdir(mos_ours_f)][:1500]
+    ]
 
-        db, cursor = mos.create_db()
-        mos.create_table(db, cursor)
+    db, cursor = mos.create_db()
+    mos.create_table(db, cursor)
+    db.close()
 
-        with db:
-            app.run(debug=True, threaded=True, host='0.0.0.0', port=8888)
-
-    except Exception as e:
-        print('[ERROR] DB ISSUE')
-
-    finally:
-        db.close()
+    app.run(debug=True, threaded=True, host='0.0.0.0', port=8888)
