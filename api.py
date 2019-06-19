@@ -157,8 +157,9 @@ def study_post():
 @cross_origin(origin='*')
 def study_get():
     try:
-        id = min(int(np.random.randint(0, len(files))), len(files) - 1)
-        f  = files[id]
+        _m = np.random.randint(0, len(files))
+        _i = np.random.randint(0, len(files[_m]))
+        f  = files[_m][_i]
         i  = Image.open(f)
         b  = BytesIO()
         i.save(b, format='PNG')
@@ -232,9 +233,11 @@ if __name__ == '__main__':
         mos_paper  = os.path.join(mos_path, 'paper')
         mos_ours   = os.path.join(mos_path, 'ours')
         mos_ours_f = os.path.join(mos_path, 'ours_final')
-        files      = [os.path.join(mos_paper, f) for f in os.listdir(mos_paper )][:1500] + \
-                     [os.path.join(mos_paper, f) for f in os.listdir(mos_ours  )][:1500] + \
-                     [os.path.join(mos_paper, f) for f in os.listdir(mos_ours_f)][:1500]
+        files      = [
+            [os.path.join(mos_paper, f) for f in os.listdir(mos_paper )][:1500],
+            [os.path.join(mos_paper, f) for f in os.listdir(mos_ours  )][:1500],
+            [os.path.join(mos_paper, f) for f in os.listdir(mos_ours_f)][:1500]
+        ]
 
         db, cursor = mos.create_db()
         mos.create_table(db, cursor)
