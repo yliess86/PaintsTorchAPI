@@ -33,6 +33,14 @@ db                          = None
 cursor                      = None
 files                       = None
 
+def resize_image_max(x, size):
+    m = max(x.width, x.height)
+    s = size / m
+    w = int(np.floor(x.width * s))
+    h = int(np.floor(x.height * s))
+
+    return x.resize((w, h))
+
 def add_grey(x):
     grey              = np.ones((512 // 4, 512 // 4, 4)) * 128.0
     grey[:, :, 3]    *= 0
@@ -160,16 +168,21 @@ def study_get():
         _m = np.random.randint(0, len(files))
         _i = np.random.randint(0, len(files[_m]))
         f  = files[_m][_i]
-        i  = Image.open(f)
+
+        i  = resize_image_max(Image.open(f), 648)
+
         b  = BytesIO()
         i.save(b, format='PNG')
         s  = b'data:image/png;base64,' + base64.b64encode(b.getvalue())
         s  = str(s)[2:-1]
-        r  = jsonify({ 
-            'surccess' : True, 
-            'image'    : s, 
-            'file_name': f.split('/')[-1], 
-            'model'    : f.split('/')[-2] 
+
+        r  = jsonify({
+            'surccess' : True,
+            'image'    : s,
+            'width'    : w,
+            'height'   : h,
+            'file_name': f.split('/')[-1],
+            'model'    : f.split('/')[-2]
         })
         return r
 
