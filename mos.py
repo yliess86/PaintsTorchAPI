@@ -64,7 +64,7 @@ def get_results(db, cursor):
         'out_final': {
             'mean': means['out_final'],
             'std' : vars['out_final'],
-        }
+        },
         'count': counts
     }
 
