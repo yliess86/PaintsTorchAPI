@@ -55,6 +55,7 @@ def add_grey(x):
 def normalize_hint(hint):
     hint[:3, ...] = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(hint[:3, ...])
     hint[ 3, ...] = hint[ 3, ...] / 255.0 
+    print('HINT -->', hint.min(), hint.max())
     return hint
 
 Gs = {}
@@ -113,6 +114,7 @@ def apply_color(s, h, m):
     strokes = ((hint[:, :, :3] + 1) * 0.5 * 255.0).astype(np.uint8)
     mask    = (hint[:, :, 3] * 255.0).astype(np.uint8)
     mask    = np.stack((mask, ) * 3, axis=-1)
+    print('MASK -->', mask.min(), mask.max())
     Image.fromarray(strokes).save('/Projects/PaintsTorchAPI/strokes_debug.png')
     Image.fromarray(mask).save('/Projects/PaintsTorchAPI/mask_debug.png')
     
