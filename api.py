@@ -113,8 +113,8 @@ def apply_color(s, h, m):
     strokes = ((hint[:3] + 1) * 0.5 * 255.0).astype(np.uint8)
     mask    = (hint[ 3] * 255.0).astype(np.uint8)
     mask    = np.stack((mask, ) * 3, axis=-1)
-    Image.fromarray(strokes).save('/Projects/PaintsTorchAPI/strokes_debug.jpeg')
-    Image.fromarray(mask).save('/Projects/PaintsTorchAPI/mask_debug.jpeg')
+    Image.fromarray(strokes).save('/Projects/PaintsTorchAPI/strokes_debug.png')
+    Image.fromarray(mask).save('/Projects/PaintsTorchAPI/mask_debug.png')
     
     return colored
 
