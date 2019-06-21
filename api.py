@@ -54,7 +54,7 @@ def add_grey(x):
 
 def normalize_hint(hint):
     hint[:3, ...] = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(hint[:3, ...])
-    print('HINT b -->', hint.min(), hint.max())
+    print('HINT b -->', hint[3].min(), hint[3].max())
     return hint
 
 Gs = {}
