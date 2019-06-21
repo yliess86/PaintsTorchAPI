@@ -108,13 +108,6 @@ def apply_color(s, h, m):
     colored = G(sketch, hint, I(sketch)).squeeze(0).permute(1, 2, 0).detach().cpu().numpy()
     colored = ((colored + 1) * 0.5 * 255.0).astype(np.uint8)
     
-    hint    = hint.squeeze(0).permute(1, 2, 0).detach().cpu().numpy()
-    strokes = ((hint[:, :, :3] + 1) * 0.5 * 255.0).astype(np.uint8)
-    mask    = (hint[:, :, 3] * 255.0).astype(np.uint8)
-    mask    = np.stack((mask, ) * 3, axis=-1)
-    Image.fromarray(strokes).save('/Projects/PaintsTorchAPI/strokes_debug.png')
-    Image.fromarray(mask).save('/Projects/PaintsTorchAPI/mask_debug.jpg')
-    
     return colored
 
 def colorize(sketch, hint, opacity, model):
