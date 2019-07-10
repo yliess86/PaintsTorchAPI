@@ -55,11 +55,20 @@ def add_grey(x):
 def normalize_hint(hint):
     hint[:3, ...] = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(hint[:3, ...])
     return hint
+    
+def resize_smaller_side(x, size=512):
+	m = min(x.width, x.height)
+	s = m / size
+	w = int(np.floor(x.width * s))
+	h = int(np.floor(x.height * s))
+	
+	return x.resize((w, h))
 
 Gs = {}
 I  = None
 Ts = transforms.Compose([
-    lambda x: x.resize((512, 512)),
+    # lambda x: x.resize((512, 512)),
+    lambda x: resize_smaller_side(x, 512),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
     lambda x: x.mean(0).unsqueeze(0)
