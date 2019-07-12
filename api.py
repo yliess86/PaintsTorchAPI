@@ -145,6 +145,8 @@ def colorizer():
 
         if 'sketch' in data and 'hint' in data and 'opacity' in data:
             model    = data['model'] if 'model' in data else list(Gs.keys())[0]
+            if model not in list(Gs.keys()):
+                raise Exception('The model requested does not exists.')
 
             colored  = colorize(data['sketch'], data['hint'], data['opacity'], model)
             response = jsonify({ 'success': True, 'colored': str(colored)[2:-1] })
@@ -155,7 +157,7 @@ def colorizer():
             return response
 
     except Exception as e:
-        exception = str(sys.exc_info()[0])
+        exception = e
         print('\033[0;31m' + exception + '\033[0m')
         response  = jsonify({ 'success': False, 'error': exception })
         return response
