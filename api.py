@@ -108,29 +108,35 @@ def apply_color(s, h, m):
     return colored
 
 def colorize(sketch, hint, opacity, model):
-    sketch  = remove_header(sketch)
-    hint    = remove_header(hint)
+    try:
+        sketch  = remove_header(sketch)
+        hint    = remove_header(hint)
 
-    osketch = Image.open(BytesIO(base64.b64decode(sketch))).convert('RGB')
-    hint    = Image.open(BytesIO(base64.b64decode(hint)))
-    w, h    = osketch.size
+        osketch = Image.open(BytesIO(base64.b64decode(sketch))).convert('RGB')
+        hint    = Image.open(BytesIO(base64.b64decode(hint)))
+        w, h    = osketch.size
 
-    if osketch.mode == 'RGBA':
-        bckg    = Image.new('RGB', osketch.size, (255, 255, 255))
-        bckg.paste(osketch, mask=osketch.split()[3])
-        osketch = bckg
+        if osketch.mode == 'RGBA':
+            bckg    = Image.new('RGB', osketch.size, (255, 255, 255))
+            bckg.paste(osketch, mask=osketch.split()[3])
+            osketch = bckg
 
-    colored = apply_color(osketch, hint, model)
+        colored = apply_color(osketch, hint, model)
 
-    colored = Image.fromarray(colored)
-    colored = colored.resize((w, h))
-    colored = np.array(colored.convert('RGBA')).astype(float)
-    sketch  = np.array(osketch.convert('RGB')).astype(float)
+        colored = Image.fromarray(colored)
+        colored = colored.resize((w, h))
+        colored = np.array(colored.convert('RGBA')).astype(float)
+        sketch  = np.array(osketch.convert('RGB')).astype(float)
 
-    blend   = blend_sketch_colored(sketch, colored, opacity)
-    blend   = png2base64(blend)
+        blend   = blend_sketch_colored(sketch, colored, opacity)
+        blend   = png2base64(blend)
 
-    return blend
+        return blend
+        
+    except Exception as e:
+        exception = str(e)
+        print('\033[0;31m' + exception + '\033[0m')
+        return None
 
 def add_response_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
@@ -149,6 +155,9 @@ def colorizer():
                 raise Exception('The model requested does not exists.')
 
             colored  = colorize(data['sketch'], data['hint'], data['opacity'], model)
+            if colored is None:
+                raise Exception('There is an issue with the data.')
+            
             response = jsonify({ 'success': True, 'colored': str(colored)[2:-1] })
             return response
 
