@@ -6,7 +6,6 @@ import base64
 import torch
 import json
 import sys
-import mos
 sys.path.append('/Projects/PaintsTorch/paintstorch')
 
 from flask_cors import CORS, cross_origin
@@ -28,8 +27,6 @@ app.config['CORS_HEADERS']  = 'Content-Type'
 app.config['JSON_AS_ASCII'] = False
 cors                        = CORS(app)
 device                      = 'cpu'
-
-files                       = None
 
 def resize_image_max(x, size):
     m = max(x.width, x.height)
@@ -140,72 +137,6 @@ def add_response_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
     return response
 
-@app.route('/api/v1/study', methods=['POST'])
-@cross_origin(origin='*')
-def study_post():
-    try:
-        data = request.json
-
-        if 'session_id' in data and 'file_name' in data and 'model' in data and 'rate' in data:
-            db, cursor = mos.create_db()
-            mos.add_entry(db, cursor, data)
-            db.close()
-            response   = jsonify({ 'success': True })
-            return response
-
-        else:
-            response = jsonify({ 'success': False, 'error': '"session_id" or "file_name" or "model" or "rate" may not be included in the json' })
-            return response
-
-    except Exception as e:
-        print('\033[0;31m' + str(e) + '\033[0m')
-        response = jsonify({ 'success': False, 'error': str(e) })
-        return response
-
-@app.route('/api/v1/study', methods=['GET'])
-@cross_origin(origin='*')
-def study_get():
-    try:
-        _m      = np.random.randint(0, len(files))
-        _i      = np.random.randint(0, len(files[_m]))
-        f       = files[_m][_i]
-
-        i, w, h = resize_image_max(Image.open(f), 648)
-
-        b       = BytesIO()
-        i.save(b, format='PNG')
-        s       = b'data:image/png;base64,' + base64.b64encode(b.getvalue())
-        s       = str(s)[2:-1]
-
-        r       = jsonify({
-            'surccess' : True,
-            'image'    : s,
-            'width'    : w,
-            'height'   : h,
-            'file_name': f.split('/')[-1],
-            'model'    : f.split('/')[-2]
-        })
-        return r
-
-    except Exception as e:
-        print('\033[0;31m' + str(e) + '\033[0m')
-        response = jsonify({ 'success': False, 'error': str(e) })
-        return response
-
-@app.route('/api/v1/results', methods=['GET'])
-@cross_origin(origin='*')
-def results_get():
-    try:
-        db, cursor = mos.create_db()
-        r          = jsonify(mos.get_results(db, cursor))
-        db.close()
-        return r
-
-    except Exception as e:
-        print('\033[0;31m' + str(e) + '\033[0m')
-        response = jsonify({ 'success': False, 'error': str(e) })
-        return response
-
 @app.route('/api/v1/colorizer', methods=['POST'])
 @cross_origin(origin='*')
 def colorizer():
@@ -255,19 +186,5 @@ if __name__ == '__main__':
 
     I = Illustration2Vec(path=args.illustration2vec) if args.device == 'cpu' else nn.DataParallel(Illustration2Vec(path=args.illustration2vec), device_ids=(3, ))
     I = I.to(device)
-
-    mos_path   = '/Projects/PaintsTorchMOS/data'
-    mos_paper  = os.path.join(mos_path, 'paper')
-    mos_ours   = os.path.join(mos_path, 'ours')
-    mos_ours_f = os.path.join(mos_path, 'ours_final')
-    files      = [
-        [os.path.join( mos_paper, f) for f in os.listdir(mos_paper )][:1500],
-        [os.path.join(  mos_ours, f) for f in os.listdir(mos_ours  )][:1500],
-        [os.path.join(mos_ours_f, f) for f in os.listdir(mos_ours_f)][:1500]
-    ]
-
-    db, cursor = mos.create_db()
-    mos.create_table(db, cursor)
-    db.close()
 
     app.run(debug=True, threaded=True, host='0.0.0.0', port=8888)
