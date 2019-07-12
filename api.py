@@ -157,7 +157,7 @@ def colorizer():
             return response
 
     except Exception as e:
-        exception = e
+        exception = str(e)
         print('\033[0;31m' + exception + '\033[0m')
         response  = jsonify({ 'success': False, 'error': exception })
         return response
