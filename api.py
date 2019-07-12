@@ -155,8 +155,9 @@ def colorizer():
             return response
 
     except Exception as e:
-        print('\033[0;31m' + str(e) + '\033[0m')
-        response = jsonify({ 'success': False, 'error': str(e) })
+        exception = str(sys.exec_info()[0])
+        print('\033[0;31m' + exception + '\033[0m')
+        response  = jsonify({ 'success': False, 'error': exception })
         return response
 
 if __name__ == '__main__':
