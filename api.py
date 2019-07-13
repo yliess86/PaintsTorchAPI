@@ -200,7 +200,7 @@ def study_post():
     rate      = data['rate']
     
     with open(os.path.join(study_path, 'study.csv'), 'a+') as file:
-        file.writeline(f'{user_uuid};{file_name};{model};{rate}\n')
+        file.write(f'{user_uuid};{file_name};{model};{rate}\n')
 
 if __name__ == '__main__':
     import argparse
