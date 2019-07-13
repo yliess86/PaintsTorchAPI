@@ -178,7 +178,7 @@ def colorizer():
 
 @app.route('/api/v1/study/<file>', methods=['GET'])
 @cross_origin(origin='*')
-def study_get_all(file):
+def study_get(file):
     file_path = os.path.join(os.path.join(study_path, 'Illustration'), file)
     image     = png2base64(Image.open(file_path))
     return jsonify({ 'illustration': image })
