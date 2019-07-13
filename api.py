@@ -181,14 +181,14 @@ def colorizer():
 def study_get_all(file):
     file_path = os.path.join(os.path.join(study_path, 'Illustration'), file)
     image     = png2base64(Image.open(file_path))
-	return jsonify({ 'illustration': image })
+    return jsonify({ 'illustration': image })
 
 @app.route('/api/v1/study', methods=['GET'])
 @cross_origin(origin='*')
 def study_get_all():
     directory = os.path.join(study_path, 'Illustration')
     files     = list(os.listdir(directory))
-	return jsonify({ 'files': sorted(files) })
+    return jsonify({ 'files': sorted(files) })
         
 @app.route('/api/v1/study', methods=['POST'])
 @cross_origin(origin='*')
