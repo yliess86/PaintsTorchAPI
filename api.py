@@ -193,7 +193,7 @@ def study_get_all():
 @app.route('/api/v1/study', methods=['POST'])
 @cross_origin(origin='*')
 def study_post():
-    data      = request.json()
+    data      = request.json
     user_uuid = data['uuid']
     file_name = data['file_name']
     model     = file_name.split('.')[0].split('_')[1]
