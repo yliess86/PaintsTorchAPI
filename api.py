@@ -148,7 +148,6 @@ def add_response_headers(response):
 def colorizer():
     try:
         data = request.json
-        print(data)
 
         if 'sketch' in data and 'hint' in data and 'opacity' in data:
             model    = data['model'] if 'model' in data else list(Gs.keys())[0]
