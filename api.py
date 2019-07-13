@@ -201,6 +201,8 @@ def study_post():
     
     with open(os.path.join(study_path, 'study.csv'), 'a+') as file:
         file.write(f'{user_uuid};{file_name};{model};{rate}\n')
+        
+    return jsonify({})
 
 if __name__ == '__main__':
     import argparse
