@@ -153,6 +153,11 @@ def colorizer():
             model    = data['model'] if 'model' in data else list(Gs.keys())[0]
             if model not in list(Gs.keys()):
                 model = list(Gs.keys())[0]
+            
+            print(data['sketch'])    
+            print(data['hint'])
+            print(data['opacity'])
+            print(model)
 
             colored  = colorize(data['sketch'], data['hint'], data['opacity'], model)
             if colored is None:
