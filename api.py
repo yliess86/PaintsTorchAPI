@@ -6,6 +6,7 @@ import base64
 import torch
 import json
 import sys
+import os
 sys.path.append('/Projects/PaintsTorch/paintstorch')
 
 from flask_cors import CORS, cross_origin
@@ -27,6 +28,7 @@ app.config['CORS_HEADERS']  = 'Content-Type'
 app.config['JSON_AS_ASCII'] = False
 cors                        = CORS(app)
 device                      = 'cpu'
+study_path                  = None
 
 def resize_image_max(x, size):
     m = max(x.width, x.height)
@@ -82,10 +84,11 @@ def remove_header(x):
     return x
 
 def png2base64(img):
-    img  = Image.fromarray(img.astype(np.uint8))
+    img  = Image.fromarray(img.astype(np.uint8)) if type(img) == np.ndarray else img
     buff = BytesIO()
     img.save(buff, format='PNG')
     base = b'data:image/png;base64,' + base64.b64encode(buff.getvalue())
+    base = str(base)[2:-1]
     return base
 
 def blend_sketch_colored(sketch, colored, opacity):
@@ -160,7 +163,7 @@ def colorizer():
                 return response
                 
             
-            response = jsonify({ 'success': True, 'colored': str(colored)[2:-1] })
+            response = jsonify({ 'success': True, 'colored': colored })
             return response
 
         else:
@@ -173,6 +176,32 @@ def colorizer():
         response  = jsonify({ 'success': False, 'error': exception })
         return response
 
+@app.route('/api/v1/study/<file>', methods=['GET'])
+@cross_origin(origin='*')
+def study_get_all(file):
+    file_path = os.path.join(os.path.join(study_path, 'Illustration'), file)
+    image     = png2base64(Image.open(file_path))
+	return jsonify({ 'illustration': image })
+
+@app.route('/api/v1/study', methods=['GET'])
+@cross_origin(origin='*')
+def study_get_all():
+    directory = os.path.join(study_path, 'Illustration')
+    files     = list(os.listdir(directory))
+	return jsonify({ 'files': sorted(files) })
+        
+@app.route('/api/v1/study', methods=['POST'])
+@cross_origin(origin='*')
+def study_post():
+    data      = request.json()
+    user_uuid = data['uuid']
+    file_name = data['file_name']
+    model     = file_name.split('.')[0].split('_')[1]
+    rate      = data['rate']
+    
+    with open(os.path.join(study_path, 'study.csv'), 'a+') as file:
+        file.writeline(f'{user_uuid};{file_name};{model};{rate}\n')
+
 if __name__ == '__main__':
     import argparse
     import os
@@ -182,6 +211,7 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--generators', nargs='+', type=str, help='Path to generator models')
     parser.add_argument('-n', '--names', nargs='+', type=str, help='Name of generator models')
     parser.add_argument('-i', '--illustration2vec', type=str, help='Path to Illustration2Vec model')
+    parser.add_argument('-s', '--study', type=str, help='Path to study path')
 
     args   = parser.parse_args()
     device = 'cuda:3' if args.device == 'cuda' else args.device
@@ -198,7 +228,9 @@ if __name__ == '__main__':
         Gs[name].load_state_dict(C['generator'])
         Gs[name] = Gs[name].to(device)
 
-    I = Illustration2Vec(path=args.illustration2vec) if args.device == 'cpu' else nn.DataParallel(Illustration2Vec(path=args.illustration2vec), device_ids=(3, ))
-    I = I.to(device)
+    I          = Illustration2Vec(path=args.illustration2vec) if args.device == 'cpu' else nn.DataParallel(Illustration2Vec(path=args.illustration2vec), device_ids=(3, ))
+    I          = I.to(device)
+
+    study_path = args.study
 
     app.run(debug=True, threaded=True, host='0.0.0.0', port=8888)

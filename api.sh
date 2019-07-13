@@ -10,4 +10,5 @@ python3 api.py \
      '/Projects/PaintsTorchExp/trained/CustomSS/generator.pth' \
      '/Projects/PaintsTorchExp/trained/CustomSD/generator.pth' \
   -n 'PaperRS' 'CustomSS' 'CustomSD' \
-  -i '/Projects/PaintsTorch/res/model/i2v.pth'
+  -i '/Projects/PaintsTorch/res/model/i2v.pth' \
+  -s '/Projects/PaintsTorchStats/data/StudyDataset'
